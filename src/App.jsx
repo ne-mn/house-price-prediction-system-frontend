@@ -15,6 +15,13 @@ function App() {
   const [isOptionsLoading, setIsOptionsLoading] = useState(false);
   const [optionsError, setOptionsError] = useState("");
 
+  // state variables to hold the predicted price
+  const [predictedPrice, setPredictedPrice] = useState(null);
+
+  // helper state variables for fetching predicted price
+  const [isPredicting, setIsPredicting] = useState(false);
+  const [isPredictedPriceError, setIsPredictedPriceError] = useState("");
+
   // react-hook-form initiated
   const { 
     register, 
@@ -22,6 +29,7 @@ function App() {
     formState: { errors },
   } = useForm();
 
+  // fetching options from the server/api
   useEffect(() => {
 
     //fecthing functions
@@ -34,8 +42,8 @@ function App() {
 
         setAreaTypes(response.data.area_type_features);
         setLocationTypes(response.data.location_type_features);
-      } catch(error) {
-        console.log('error occured while fetching options: $(error)');
+      } catch (error) {
+        console.log('error occured while fetching options : ${error}');
         setOptionsError("Error occured while fetching options");
       } finally {
         setIsOptionsLoading(false);
@@ -46,9 +54,21 @@ function App() {
   }, []);
 
   // form submit handler
-  function onSubmit(data) {
-    console.log(data);
-  }
+  async function onSubmit(data) {
+    try {
+      setIsPredicting(true);
+      setIsPredictedPriceError("");
+
+      const response = await api.post("/predict", data);
+
+      setPredictedPrice(response.data.predicted_price);
+    } catch (error) {
+      console.log('error occured while predicting price : ${error}');
+        setPredictedPriceError("Error occured while predicting price");
+      } finally {
+        setIsPredicting(false);
+      }
+    }
   
   return (
     <>
@@ -232,12 +252,30 @@ function App() {
             </div>
 
             <button
+              disabled={isPredicting || isOptionsLoading}
               type="submit"
               className="mt-3 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700 transition"   
             >
-              Predict Price
+              {isPredicting ? "Predicting..." : "Predict Price"}
             </button>   
           </form>
+
+          {predictedPriceError && (
+            <p className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-5m text-red-700">
+              {predictedPriceError}
+            </p>
+          )}
+
+          {predictedPrice && (
+           <div className="mt-5 rounded-lg bg-green-50 px-4 text-center">
+            <p className="text-5m text-green-700">Predicted Price</p>
+
+            <p className="mt-1 text-3xl font-bold text-green-800">
+              {predictedPrice} lakhs
+            </p>
+           </div>
+          )}
+          
         </section>
       </main>
     </>  
