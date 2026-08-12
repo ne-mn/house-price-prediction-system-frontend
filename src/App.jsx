@@ -9,7 +9,7 @@ const api =  axios.create({
 function App() {
   // state variables to hold options data
   const [area_types, setAreaTypes] = useState([]);
-  const [location_types, setLocationsTypes] = useState([]);
+  const [location_types, setLocationTypes] = useState([]);
 
   // helper state variables for fetching options
   const [isOptionsLoading, setIsOptionsLoading] = useState(false);
@@ -43,7 +43,7 @@ function App() {
         setAreaTypes(response.data.area_type_features);
         setLocationTypes(response.data.location_type_features);
       } catch (error) {
-        console.log('error occured while fetching options : ${error}');
+        console.log(`error occured while fetching options : ${error}`);
         setOptionsError("Error occured while fetching options");
       } finally {
         setIsOptionsLoading(false);
@@ -63,17 +63,17 @@ function App() {
 
       setPredictedPrice(response.data.predicted_price);
     } catch (error) {
-      console.log('error occured while predicting price : ${error}');
-        setPredictedPriceError("Error occured while predicting price");
-      } finally {
-        setIsPredicting(false);
-      }
+      console.log(`error occured while predicting price : ${error}`);
+      setIsPredictedPriceError("Error occured while predicting price");
+    } finally {
+      setIsPredicting(false);
+    }
     }
   
   return (
     <>
       <main className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-8">
-        <section className="w-full max-w-xl bg-white rounded-2*1 shadow-lg p-8">
+        <section className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-8">
           <h1 className="text-3xl font-bold text-center text-slate-800">
             House Price Predictor
           </h1>
@@ -97,7 +97,7 @@ function App() {
                 {...register("area_type", {
                   required: "Area type is required",
                 })}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus-border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               >
                 <option value="">{isOptionsLoading ? "Loading..." : "Select area type"}</option>
 
@@ -110,7 +110,7 @@ function App() {
               </select>
 
               {errors.area_type && (
-                <p className="mt-1 text-sm text-read-600">
+                <p className="mt-1 text-sm text-red-600">
                    {errors.area_type.message}
                  
                 </p>
@@ -127,13 +127,13 @@ function App() {
                 {...register("location", {
                   required: "Location is required",
                 })}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-2oo"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               >
                 <option value="">
                   {isOptionsLoading ? "Loading..." : "Select location"}
                 </option>
 
-                {location_types.map((option) => (
+                {location_types && location_types.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -163,7 +163,7 @@ function App() {
                     massege: "Total sqft must be greater than 0",
                   },
                 })}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus-ring-2 focus:ring-blue-200"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               />
 
               {errors.total_sqft && (
@@ -254,21 +254,16 @@ function App() {
             <button
               disabled={isPredicting || isOptionsLoading}
               type="submit"
-              className="mt-3 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700 transition"   
+              className="mt-3 w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700 transition"   
             >
               {isPredicting ? "Predicting..." : "Predict Price"}
             </button>   
           </form>
 
-          {predictedPriceError && (
-            <p className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-5m text-red-700">
-              {predictedPriceError}
-            </p>
-          )}
-
-          {predictedPrice && (
-           <div className="mt-5 rounded-lg bg-green-50 px-4 text-center">
-            <p className="text-5m text-green-700">Predicted Price</p>
+          
+          {predictedPrice !== null && (
+           <div className="mt-5 rounded-lg bg-green-50 px-4 py-4 text-center">
+            <p className="text-sm text-green-700">Predicted Price</p>
 
             <p className="mt-1 text-3xl font-bold text-green-800">
               {predictedPrice} lakhs
